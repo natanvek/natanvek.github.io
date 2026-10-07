@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import { categories } from '../categories';
+
+interface Props { project: CollectionEntry<'projects'>; big?: boolean }
+const { project, big = false } = Astro.props;
+const { title, tagline, category, period, award, tags, logo } = project.data;
+const cat = categories[category];
+---
+<a
+  href={`/projects/${project.id}/`}
+  class:list={['glow-card', 'card', 'reveal', { big }]}
+  data-category={category}
+  style={`--cat: ${cat.color}`}
+>
+  {logo && <Image src={logo} alt="" height={80} class="logo" />}
+  <div class="top">
+    <span class="cat mono"><span class="dot"></span>{cat.label}</span>
+    <span class="period mono">{period}</span>
+  </div>
+  {award && <div class="award">🏆 {award}</div>}
+  <h3 set:html={title} />
+  <p>{tagline}</p>
+  <div class="tags">
+    {tags.slice(0, big ? 6 : 4).map((t) => <span class="chip">{t}</span>)}
+  </div>
+  <span class="arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .card { display: flex; flex-direction: column; gap: 8px; padding: 22px; }
+  .card.big { padding: 26px; }
+  .card.big h3 { font-size: 24px; }
+  .top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+  .cat { color: var(--cat); display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cat); box-shadow: 0 0 10px var(--cat); }
+  .period { color: var(--muted); }
+  .logo { align-self: flex-start; height: 36px; width: auto; border-radius: 8px; margin-bottom: 6px; }
+  .award {
+    align-self: flex-start;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    color: var(--award-text);
+    background: var(--award-bg);
+    border: 1px solid var(--award-border);
+  }
+  h3 { margin: 4px 0 0; font-size: 23px; line-height: 1.2; letter-spacing: -0.02em; }
+  p { margin: 0; color: var(--muted); font-size: 15.5px; flex: 1; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .arrow {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: 0.25s;
+    color: var(--cat);
+  }
+  .period { margin-right: 22px; }
+  .card:hover .arrow { opacity: 1; transform: none; }
+</style>

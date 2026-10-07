@@ -1,0 +1,263 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { Image } from 'astro:assets';
+import ubaLogo from '../assets/thesis/uba-logo.png';
+import cambridgeLogo from '../assets/cambridge-logo.png';
+import atcLogo from '../assets/logos/atc-sports.jpg';
+import verifarmaLogo from '../assets/logos/verifarma.png';
+import profilePhoto from '../assets/profile.jpg';
+import type { ImageMetadata } from 'astro';
+
+const all = await getCollection('projects');
+// Home page highlights, in display order. Everything else lives on /projects/.
+const featuredOrder = ['thesis', 'polymarket-trading', 'habonim-dror', 'mercado-libre-challenge'];
+const featured = featuredOrder.map((id) => all.find((p) => p.id === id)!);
+const others = all.length - featured.length;
+
+const experience: { role: string; org: string; when: string; where: string; href?: string; logo?: ImageMetadata; bullets: string[]; stack: string[] }[] = [
+  {
+    role: 'Backend Developer',
+    org: 'Verifarma',
+    logo: verifarmaLogo,
+    when: 'Sep 2025 – Sep 2026',
+    where: 'Argentina · Hybrid',
+    href: '/projects/verifarma/',
+    bullets: [
+      'Redesigned the serial-number generation algorithms behind pharmaceutical traceability identifiers, improving efficiency and security.',
+      'Built supply-chain optimization features that raised packaging throughput.',
+    ],
+    stack: ['C#', '.NET'],
+  },
+  {
+    role: 'Freelance Developer',
+    org: 'Independent',
+    when: '2021 – 2026',
+    where: 'Remote',
+    href: '/projects/freelance/',
+    bullets: [
+      'Numetri: backend integrations and data pipelines connecting e-commerce ERPs (SellerCloud, Ordoro, Goflow) to an MCP-based AI analytics layer.',
+      'SCloudConsulting: custom reporting and analytics for large e-commerce sellers, feeding client-facing dashboards.',
+      'Internal tools for a retailer, a travel agency, and a non-profit: inventory tracking, quoting workflows, event registration.',
+    ],
+    stack: ['Data pipelines', 'MCP', 'Integrations'],
+  },
+  {
+    role: 'Software Developer Intern',
+    org: 'ATC Sports',
+    when: 'Mar 2023 – Feb 2024',
+    where: 'Remote',
+    href: 'https://atcsports.io/',
+    logo: atcLogo,
+    bullets: [
+      'Contributed to backend services and internal tools: API development, data processing, and third-party integrations.',
+      'Worked in a Git-based workflow with code reviews and test-driven development.',
+    ],
+    stack: ['TypeScript', 'Node.js'],
+  },
+];
+---
+<Base>
+  <section class="hero container">
+    <Image src={profilePhoto} alt="Natan Vekselman" widths={[200, 400]} sizes="200px" loading="eager" class="avatar" />
+    <p class="eyebrow">Buenos Aires, Argentina · EU citizen · English C2 (Cambridge CPE)</p>
+    <h1>Natan Vekselman</h1>
+    <p class="headline">Computer Scientist &amp; Software Engineer.<br /><span class="accent">Algorithms, optimization, and backend systems.</span></p>
+    <p class="lede">
+      Finishing my Computer Science degree at UBA, with a graph algorithms paper on arXiv. I combine research-level
+      problem solving with real engineering: backend systems in production, data pipelines for e-commerce, and a live
+      trading system in Rust.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#projects">View my work</a>
+      <a class="btn" href="#contact">Contact me</a>
+      <a class="btn" href="/natan_vekselman_cv.pdf" target="_blank" rel="noopener">Download CV</a>
+    </div>
+    <ul class="quick-links mono" aria-label="Profiles">
+      <li><a href="mailto:natanvek11@gmail.com">natanvek11@gmail.com</a></li>
+      <li><a href="https://linkedin.com/in/natanvek" target="_blank" rel="noopener">LinkedIn</a></li>
+      <li><a href="https://github.com/natanvek" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://codeforces.com/profile/NatanVek" target="_blank" rel="noopener">Codeforces</a></li>
+    </ul>
+  </section>
+
+  <section class="section container" id="education">
+    <p class="eyebrow">Education</p>
+    <h2 class="section-title">Where I studied</h2>
+    <article class="edu reveal">
+      <div class="edu-head">
+        <Image src={ubaLogo} alt="University of Buenos Aires" width={380} class="edu-logo" />
+        <div>
+          <h4>Licenciatura en Ciencias de la Computación</h4>
+          <p class="edu-meta">University of Buenos Aires · Computer Science, BS + MS · <span class="mono">2021 – Dec 2026 (expected)</span></p>
+        </div>
+        <div class="edu-gpa">
+          <span class="gpa-v">8.58</span>
+          <span class="gpa-l">/ 10 average</span>
+        </div>
+      </div>
+      <div class="edu-head">
+        <Image src={cambridgeLogo} alt="University of Cambridge" width={380} class="edu-logo" />
+        <div>
+          <h4>English C2 Proficiency (CPE)</h4>
+          <p class="edu-meta">Cambridge English · highest level of the Common European Framework (CEFR)</p>
+        </div>
+        <div class="edu-gpa">
+          <span class="gpa-v">C2</span>
+          <span class="gpa-l">CEFR level</span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="section container" id="experience">
+    <p class="eyebrow">Experience</p>
+    <h2 class="section-title">Where I've worked</h2>
+    <ol class="xp">
+      {experience.map((x) => (
+        <li class="xp-item reveal">
+          <div class="xp-head">
+            <h3>
+              {x.role} ·{' '}
+              {(() => {
+                // A logo replaces the company name (the name stays as alt text)
+                const name = x.logo ? <Image src={x.logo} alt={x.org} width={120} class="xp-logo" /> : x.org;
+                if (!x.href) return name;
+                return x.href.startsWith('http')
+                  ? <a href={x.href} target="_blank" rel="noopener" class:list={{ 'logo-link': x.logo }}>{name} ↗</a>
+                  : <a href={x.href} class:list={{ 'logo-link': x.logo }}>{name}</a>;
+              })()}
+            </h3>
+            <span class="xp-when mono">{x.when}</span>
+          </div>
+          <p class="xp-where">{x.where}</p>
+          <ul class="xp-bullets">{x.bullets.map((b) => <li>{b}</li>)}</ul>
+          <div class="xp-stack">{x.stack.map((s) => <span class="chip">{s}</span>)}</div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="section container" id="projects">
+    <p class="eyebrow">Side projects</p>
+    <h2 class="section-title">What I've built and proven</h2>
+    <div class="featured">
+      {featured.map((p) => <ProjectCard project={p} big />)}
+    </div>
+    <div class="more"><a class="btn" href="/projects/">{others} more: Investigathon, Codeforces, work experience, games →</a></div>
+  </section>
+
+  <section class="section container" id="about">
+    <div class="about reveal">
+      <div>
+        <p class="eyebrow">How I work</p>
+        <h2 class="section-title">Theory and practice,<br />on the same problems.</h2>
+      </div>
+      <div>
+        <p class="body">
+          I'm drawn to technically demanding work: algorithms, optimization, quantitative systems, logistics, and
+          AI-enabled products. Competitive programming and research taught me to find structure in difficult problems and
+          reason rigorously about solutions. My engineering work is where I apply that thinking to real systems.
+        </p>
+        <p class="body">
+          Outside of code, I served as National Treasurer of Habonim Dror Argentina, leading a national team and managing
+          fundraising, vendors, and logistics for camps of 300+ people. It taught me ownership, delegation, and
+          accountability when the stakes are real.
+        </p>
+        <p class="skills-label mono">Languages &amp; tools</p>
+        <div class="skills" aria-label="Languages and tools">
+          {['C++', 'Rust', 'Python', 'C# / .NET', 'TypeScript', 'Java', 'IBM CPLEX', 'Docker', 'SQL', 'Linux'].map((s) => <span class="chip">{s}</span>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container contact reveal" id="contact">
+    <h2 class="section-title">Interested in working together? Get in touch.</h2>
+    <div class="cta center">
+      <a class="btn primary" href="mailto:natanvek11@gmail.com">natanvek11@gmail.com</a>
+      <a class="btn" href="https://linkedin.com/in/natanvek" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn" href="/natan_vekselman_cv.pdf" target="_blank" rel="noopener">Download CV</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .section { padding-top: 56px; padding-bottom: 8px; }
+  .section-title { font-size: clamp(28px, 4vw, 40px); margin-bottom: 24px; }
+  .contact { padding-bottom: 72px; }
+  .hero { padding-top: 56px; padding-bottom: 8px; display: grid; grid-template-columns: 1fr auto; column-gap: 48px; }
+  .hero > * { grid-column: 1; min-width: 0; }
+  .hero > .avatar {
+    grid-column: 2;
+    grid-row: 1 / span 7;
+    align-self: center;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--surface-solid);
+    box-shadow: 0 0 0 1px var(--border), var(--shadow);
+  }
+  h1 {
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    margin: 12px 0 14px;
+    font-weight: 700;
+  }
+  .headline { font-size: clamp(20px, 2.6vw, 26px); line-height: 1.3; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 14px; }
+  .headline .accent { color: var(--accent-2); }
+  .lede { max-width: 680px; font-size: 17px; color: var(--muted); margin: 0 0 22px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .cta.center { justify-content: center; }
+  .quick-links { display: flex; flex-wrap: wrap; gap: 8px 22px; list-style: none; padding: 0; margin: 18px 0 0; font-size: 14px; }
+  .quick-links a { color: var(--muted); border-bottom: 1px solid var(--border-strong); }
+  .quick-links a:hover { color: var(--accent-2); border-color: var(--accent); }
+
+  .featured { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .more { margin-top: 32px; display: flex; justify-content: center; }
+
+  .xp { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .xp-item { padding: 20px 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-solid); box-shadow: var(--shadow); }
+  .xp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; }
+  .xp-head h3 { margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+  .xp-logo { display: inline-block; height: 22px; width: auto; vertical-align: -5px; }
+  .xp-head a.logo-link { border-bottom: none; white-space: nowrap; }
+  .xp-head a { color: var(--accent-2); border-bottom: 1px solid currentColor; }
+  .xp-when { color: var(--muted); font-size: 13px; }
+  .xp-where { margin: 2px 0 10px; color: var(--muted); font-size: 14.5px; }
+  .xp-bullets { margin: 0 0 12px; padding-left: 18px; color: var(--body-text); font-size: 15px; }
+  .xp-bullets li { margin-bottom: 4px; }
+  .xp-bullets li::marker { color: var(--accent); }
+  .xp-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+  .edu { padding: 24px 26px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-solid); box-shadow: var(--shadow); }
+  .edu-head { display: grid; grid-template-columns: 190px 1fr auto; gap: 20px; align-items: center; }
+  .edu-head + .edu-head { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .edu-logo { width: 100%; max-width: 190px; height: auto; max-height: 48px; object-fit: contain; object-position: left center; }
+  .edu h4 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+  .edu-meta { margin: 2px 0 0; color: var(--muted); font-size: 14.5px; }
+  .edu-meta .mono { font-size: 13px; }
+  .edu-gpa { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+  .gpa-v { font-size: 32px; font-weight: 700; color: var(--accent-2); letter-spacing: -0.02em; }
+  .gpa-l { color: var(--muted); font-size: 13px; }
+
+
+  .about { display: grid; grid-template-columns: 1fr 1.3fr; gap: 48px; align-items: start; }
+  .body { color: var(--body-text); margin: 0 0 18px; }
+  .skills-label { margin: 22px 0 8px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .skills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .contact { text-align: center; }
+  .contact .section-title { margin-bottom: 28px; }
+
+  @media (max-width: 860px) {
+    .featured, .about, .xp { grid-template-columns: 1fr; }
+    .edu-head { grid-template-columns: 1fr auto; }
+    .edu-logo { grid-column: 1 / -1; }
+    .about { gap: 0; }
+    .hero { padding-top: 40px; grid-template-columns: 1fr; column-gap: 0; }
+    .hero > .avatar { grid-column: 1; grid-row: auto; width: 104px; height: 104px; margin-bottom: 14px; }
+  }
+</style>

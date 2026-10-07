@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+
+# Raw source images (originals may contain EXIF/GPS); the site uses cleaned copies in src/assets
+/assets/
+/Tnua/
+/UBA/

@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { categories, type Category } from '../../categories';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.sortDate.valueOf() - a.data.sortDate.valueOf(),
+);
+const used = [...new Set(projects.map((p) => p.data.category))] as Category[];
+---
+<Base title="Work" description="Competitions, research, trading systems, games, and volunteering by Natan Vekselman.">
+  <section class="section container">
+    <p class="eyebrow">Everything</p>
+    <h1 class="section-title">Work, research &amp; <span class="grad-text">side quests</span></h1>
+    <div class="filters" role="toolbar" aria-label="Filter by category">
+      <button class="chip filter active" data-filter="all">All · {projects.length}</button>
+      {used.map((c) => (
+        <button class="chip filter" data-filter={c} style={`--cat: ${categories[c].color}`}>
+          {categories[c].label} · {projects.filter((p) => p.data.category === c).length}
+        </button>
+      ))}
+    </div>
+    <div class="grid">
+      {projects.map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+</Base>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter');
+  const cards = document.querySelectorAll<HTMLElement>('.grid .card');
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      buttons.forEach((x) => x.classList.toggle('active', x === b));
+      const f = b.dataset.filter;
+      cards.forEach((c) => (c.hidden = f !== 'all' && c.dataset.category !== f));
+    }),
+  );
+</script>
+
+<style>
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: -12px 0 36px; }
+  .filter { cursor: pointer; font-size: 13px; padding: 7px 14px; transition: 0.2s; }
+  .filter:hover { color: var(--text); border-color: var(--border-strong); }
+  .filter.active { color: var(--on-accent); background: var(--cat, var(--accent)); border-color: transparent; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .grid :global(.card[hidden]) { display: none; }
+  @media (max-width: 960px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+</style>

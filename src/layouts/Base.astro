@@ -1,0 +1,129 @@
+---
+import '../styles/global.css';
+import GraphBackground from '../components/GraphBackground.astro';
+
+interface Props { title?: string; description?: string }
+const {
+  title,
+  description = 'Natan Vekselman, computer scientist and software engineer from Buenos Aires (UBA). Algorithms, optimization, and backend systems: published graph algorithms research, 1st place in the Mercado Libre optimization challenge, and a live Rust trading system.',
+} = Astro.props;
+const fullTitle = title ? `${title} | Natan Vekselman` : 'Natan Vekselman | Software Engineer, Algorithms & Optimization';
+const path = Astro.url.pathname;
+const canonical = new URL(path, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f4fbfa" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <GraphBackground />
+
+    <header class="nav">
+      <div class="container nav-inner">
+        <a href="/" class="logo mono" aria-label="Natan Vekselman, home">natan<span class="grad-text">.vek</span></a>
+        <nav aria-label="Main">
+          <a href="/#education" class="wide">Education</a>
+          <a href="/#experience" class="wide">Experience</a>
+          <a href="/#projects" class:list={{ active: path.startsWith('/projects') && !path.startsWith('/projects/thesis') }}>Projects</a>
+          <a href="/projects/thesis/" class:list={['narrow-hide', { active: path.startsWith('/projects/thesis') }]}>Research</a>
+          <a href="/#about" class="wide">About</a>
+          <a href="/#contact">Contact</a>
+          <a href="/natan_vekselman_cv.pdf" target="_blank" rel="noopener" class="cv">CV ↗</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main"><slot /></main>
+
+    <footer class="container footer">
+      <span class="mono">© {new Date().getFullYear()} Natan Vekselman</span>
+      <div class="footer-links">
+        <a href="https://github.com/natanvek" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/in/natanvek" target="_blank">LinkedIn</a>
+        <a href="https://codeforces.com/profile/NatanVek" target="_blank">Codeforces</a>
+        <a href="mailto:natanvek11@gmail.com">Email</a>
+      </div>
+    </footer>
+
+    <script>
+      // Cursor-following glow on cards
+      document.addEventListener('pointermove', (e) => {
+        const card = (e.target as HTMLElement).closest?.('.glow-card') as HTMLElement | null;
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        card.style.setProperty('--my', `${e.clientY - r.top}px`);
+      });
+      // Scroll reveal
+      const io = new IntersectionObserver((entries) => {
+        for (const en of entries) if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-weight: 500; font-size: 17px; }
+  nav { display: flex; gap: 6px; }
+  nav a {
+    padding: 7px 14px;
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 15px;
+    transition: color 0.2s, background 0.2s;
+  }
+  nav a:hover, nav a.active { color: var(--text); background: var(--code-bg); }
+  nav a.cv { color: var(--accent); }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 40px;
+    padding-bottom: 48px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a:hover { color: var(--accent); }
+  @media (max-width: 760px) {
+    nav a.wide { display: none; }
+  }
+  @media (max-width: 480px) {
+    nav a.narrow-hide { display: none; }
+  }
+  @media (max-width: 560px) {
+    nav { gap: 2px; }
+    nav a { padding: 7px 9px; font-size: 14px; }
+  }
+</style>
